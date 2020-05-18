@@ -79,7 +79,7 @@ export class QueuesService {
     this.socketGateway.sendMessage(guid, userId, "added", item);
   }
 
-  removeItemFromQueue(guid: string, index: number) {
+  removeItemFromQueue(guid: string, index: number, userId: string) {
     const queue = this.queues[guid];
     if(!queue) {
       throw new QueueNotFoundError();
@@ -87,6 +87,7 @@ export class QueuesService {
     const items = this.queues[guid].items;
     if(index >= 0 && index < items.length) {      
       items.splice(index, 1);
+      this.socketGateway.sendMessage(guid, userId, "removed", index);
     }
     else {
       throw new VideoNotFoundError();

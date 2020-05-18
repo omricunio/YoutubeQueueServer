@@ -45,7 +45,10 @@ export class QueuesController {
   }
 
   @Delete(':guid/:index')
-  removeItemFromQueue(@Param() { guid, index }: ItemDeletionParams) {
-    this.queuesService.removeItemFromQueue(guid, index);
+  removeItemFromQueue(
+    @Headers() headers: QueueOpeationHeaders,
+    @Param() { guid, index }: ItemDeletionParams
+  ) {
+    this.queuesService.removeItemFromQueue(guid, index, headers.authorization);
   }
 }
