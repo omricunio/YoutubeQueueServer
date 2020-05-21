@@ -9,9 +9,9 @@ export class SocketGateway implements OnGatewayInit ,OnGatewayConnection, OnGate
   server: Server
   
   sendMessage(roomId: string, senderId: string, eventId: string, message: any) {
-    for(const [socketId, socket] of Object.entries(this.server.in(roomId).sockets)) {
+    for(const [socketId] of Object.entries(this.server.sockets.adapter.rooms[roomId].sockets)) {
       if(socketId !== senderId) {
-        socket.emit(eventId, message)
+        this.server.sockets.connected[socketId].emit(eventId, message)
       }
     }
   }
