@@ -7,10 +7,12 @@ import { Injectable } from '@nestjs/common';
 export class SocketGateway implements OnGatewayInit ,OnGatewayConnection, OnGatewayDisconnect {
   @WebSocketServer()
   server: Server
+
+  socketIdToUserId: Record<string, string> = {}
   
   sendMessage(roomId: string, senderId: string, eventId: string, message: any) {
     for(const [socketId] of Object.entries(this.server.sockets.adapter.rooms[roomId].sockets)) {
-      if(socketId !== senderId) {
+      if(this.socketIdToUserId[socketId] !== senderId) {
         this.server.sockets.connected[socketId].emit(eventId, message)
       }
     }
@@ -22,17 +24,25 @@ export class SocketGateway implements OnGatewayInit ,OnGatewayConnection, OnGate
 
   handleConnection(client: Socket) {
     const queueGuid = client.handshake.query['queueGuid'];
+    const userId = client.handshake.query['userId'];
+
     if(queueGuid !== "undefined") {
-      client.join(queueGuid);
-      client.emit("connected", client.id);
-      console.log(`Client connected: id: ${client.id} queueGuid: ${queueGuid}`);
+      if(userId !== "undefined") {
+        client.join(queueGuid);
+        this.socketIdToUserId[client.id] = userId;
+        console.log(`Client connected: socketId: ${client.id} userId: ${userId} queueGuid: ${queueGuid}`);
+        client.emit("connected", client.id);
+      }
+      else {
+        client.emit("connection_error", "user id sent to server is undefined");
+      }
     }
     else {
       client.emit("connection_error", "queue guid sent to server is undefined");
     }
   }
 
-  afterInit(server: any) {
+  afterInit(server: Server) {
     console.log("init");
   }
 }
