@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { Queues, Queue, YoutubeVideo } from './interfaces/interfaces';
 import * as randomize from 'randomatic';
 import { QueueNotFoundError, VideoNotFoundError } from './queues.errors';
-import { SocketGateway } from 'src/socket/socket.gateway';
+import { SocketGateway } from '../socket/socket.gateway';
 
 @Injectable()
 export class QueuesService {
